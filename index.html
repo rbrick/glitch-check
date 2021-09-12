@@ -1,46 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <script src="js/data.js"></script>
 
-        <style>
-            #error {
-                color: red;
-            }
-        </style>
-    </head>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="js/data.js"></script>
 
-    <body>
+    <style>
+        #error {
+            color: red;
+        }
 
+        .search {
+            border-top: 0px;
+            border-right: 0px;
+            border-left: 0px;
+            border-bottom: 2px solid black;
+            width: auto;
+        }
+
+        .container {
+            width: 50%;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #image {
+            width: 480px;
+            height: 480px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
         <div>
-            <label for="search">Enter ID here</label>
-            <input id="search" type="text" placeholder="1-8888"><br/>
-
-            <span>Rarity Score: <span id="rarity-score">N/A</span></span><br/>
-            <span>Rarity Ranking: <span id="rarity-rank">N/A</span></span><br/>
-            <span>Probability Score: <span id="probability-score">N/A</span></span><br/>
-            <span>Probability Ranking: <span id="probability-rank">N/A</span></span><br/>
-            <span id="error"></span>
+            <img hidden src="#" id="image">
         </div>
+        <label for="search">Enter ID here</label>
+        <input id="search" class="search" type="text" placeholder="1-8888"><br />
 
-        <script>
-             let app = App();
+        <span>Rarity Score: <span id="rarity-score">N/A</span></span><br />
+        <span>Rarity Ranking: <span id="rarity-rank">N/A</span></span><br />
+        <span>Probability Score: <span id="probability-score">N/A</span></span><br />
+        <span>Probability Ranking: <span id="probability-rank">N/A</span></span><br />
+        <span>Numbers: <span id="numbers">N/A</span></span><br/>
+        <span id="error"></span>
+    </div>
 
-             app.then( (instance) => {
-                document.getElementById('search').addEventListener('keyup', (e) => {
+    <script>
+        let app = App();
+
+        app.then((instance) => {
+            document.getElementById('search').addEventListener('keyup', (e) => {
                 let error = document.getElementById('error');
 
                 let rarityScore = document.getElementById('rarity-score');
-                let rarityRank = document.getElementById('rarity-rank'); 
+                let rarityRank = document.getElementById('rarity-rank');
 
                 let probScore = document.getElementById('probability-score');
-                let probRank = document.getElementById('probability-rank'); 
-                
+                let probRank = document.getElementById('probability-rank');
 
-                
+                let img = document.getElementById('image');
+                let numbers = document.getElementById('numbers');
 
-                let num = Number.parseInt( document.getElementById('search').value);
+
+                let num = Number.parseInt(document.getElementById('search').value);
 
                 if (Number.isNaN(num)) {
                     error.innerText = "Not a number";
@@ -49,21 +75,29 @@
 
                 let resp = instance.getInfo(num);
 
-                console.log(resp);
-                if (resp.error) {
-                    error.textContent = resp.error;
-                } else {
-                    error.textContent = "";
-                    rarityScore.innerText = resp.rarity.score;
-                    rarityRank.innerText = resp.rarity.rarest;
-                    probRank.innerText = resp.probability.rarest;
-                    probScore.innerText = resp.probability.score;
-                }        
+                resp.then((data) => {
+                    console.log(data);
+                    if (resp.error) {
+                        error.textContent = resp.error;
+                    } else {
+                        error.textContent = "";
+                        rarityScore.innerText = data.rarity.score;
+                        rarityRank.innerText = data.rarity.rarest;
+                        probRank.innerText = data.probability.rarest;
+                        probScore.innerText = data.probability.score;
+                        numbers.innerText = data.numbers.join(' ');
 
-              });
-        
-             }); 
-            
-        </script>
-    </body>
+                        img.src = data.image;
+                        img.hidden = false;
+                    }
+
+                });
+
+            });
+
+        });
+
+    </script>
+</body>
+
 </html>
