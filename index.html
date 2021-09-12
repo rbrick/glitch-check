@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <script src="js/data.js"></script>
+
+        <style>
+            #error {
+                color: red;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div>
+            <label for="search">Enter ID here</label>
+            <input id="search" type="text" placeholder="1-8888"><br/>
+
+            <span>Rarity Score: <span id="rarity-score">N/A</span></span><br/>
+            <span>Rarity Ranking: <span id="rarity-rank">N/A</span></span><br/>
+            <span>Probability Score: <span id="probability-score">N/A</span></span><br/>
+            <span>Probability Ranking: <span id="probability-rank">N/A</span></span><br/>
+            <span id="error"></span>
+        </div>
+
+        <script>
+             let app = App();
+
+             app.then( (instance) => {
+                document.getElementById('search').addEventListener('keyup', (e) => {
+                let error = document.getElementById('error');
+
+                let rarityScore = document.getElementById('rarity-score');
+                let rarityRank = document.getElementById('rarity-rank'); 
+
+                let probScore = document.getElementById('probability-score');
+                let probRank = document.getElementById('probability-rank'); 
+                
+
+                
+
+                let num = Number.parseInt( document.getElementById('search').value);
+
+                if (Number.isNaN(num)) {
+                    error.innerText = "Not a number";
+                    return;
+                }
+
+                let resp = instance.getInfo(num);
+
+                console.log(resp);
+                if (resp.error) {
+                    error.textContent = resp.error;
+                } else {
+                    error.textContent = "";
+                    rarityScore.innerText = resp.rarity.score;
+                    rarityRank.innerText = resp.rarity.rarest;
+                    probRank.innerText = resp.probability.rarest;
+                    probScore.innerText = resp.probability.score;
+                }        
+
+              });
+        
+             }); 
+            
+        </script>
+    </body>
+</html>
