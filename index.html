@@ -26,8 +26,8 @@
         }
 
         #image {
-            width: 480px;
-            height: 480px;
+            width: 500px;
+            height: 500px;
         }
     </style>
 </head>
@@ -37,6 +37,7 @@
     <div class="container">
         <div>
             <img hidden src="#" id="image">
+            <!-- <canvas id="render" width="480" height="480"></canvas> -->
         </div>
         <label for="search">Enter ID here</label>
         <input id="search" class="search" type="text" placeholder="1-8888"><br />
@@ -45,15 +46,106 @@
         <span>Rarity Ranking: <span id="rarity-rank">N/A</span></span><br />
         <span>Probability Score: <span id="probability-score">N/A</span></span><br />
         <span>Probability Ranking: <span id="probability-rank">N/A</span></span><br />
-        <span>Numbers: <span id="numbers">N/A</span></span><br/>
-        <span id="error"></span>
+        <span>Numbers: <span id="numbers">N/A</span></span><br />
+        <span id="error"></span><br />
+
+
     </div>
 
     <script>
+
+        const ANIMATE = false; // TODO: Switch this on eventually
+
+
+        const MORSE_TRANSLATIONS = [
+            '-----', // 0
+            '·----', // 1
+            '··---', // 2
+            '···--', // 3
+            '····-', // 4
+            '·····', // 5
+            '-····', // 6
+            '--···', // 7
+            '---··', // 8
+            '----·', // 9
+
+        ];
+
+
+
+
+        function init() {
+            window.requestAnimationFrame(renderFrame);
+        }
+
+        function resetRender() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        let currentHeight = 1;
+        let count = 1;
+
+        if (ANIMATE) {
+            const canvas = document.getElementById('render');
+            const ctx = canvas.getContext('2d');
+
+            let currentStr = "";
+
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, 480, 480);
+
+
+            setInterval(() => {
+                let drawString = currentStr.split(' ');
+                let currentDrawStr = drawString[currentHeight - 1];
+
+
+                if (currentDrawStr.length == 0) {
+                    return;
+                }
+                const dot = '·';
+                // const str = "·--- ·--";
+
+                if (count > currentDrawStr.length + 1) {
+
+                    count = 1;
+                    currentHeight++;
+
+                    if (currentHeight - 1 > drawString.length - 1) {
+                        currentHeight = 1;
+
+                        ctx.fillStyle = 'black';
+                        ctx.fillRect(0, 0, 480, 480);
+                    }
+
+                    currentDrawStr = drawString[currentHeight - 1];
+                }
+
+
+                ctx.fillStyle = '#39ff14';
+                ctx.font = '100px serif';
+
+                for (var i = 0; i < count; i++) {
+                    ctx.fillText(currentDrawStr.substr(0, count), 0, 50 * currentHeight);
+                }
+
+                count++;
+
+
+
+            }, 500);
+        }
+
+
         let app = App();
 
         app.then((instance) => {
             document.getElementById('search').addEventListener('keyup', (e) => {
+
+                // if (e.keyCode < 48 || e.keyCode > 57) {
+                //     return;
+                // }
+
                 let error = document.getElementById('error');
 
                 let rarityScore = document.getElementById('rarity-score');
@@ -71,13 +163,16 @@
                 if (Number.isNaN(num)) {
                     error.innerText = "Not a number";
                     return;
+                } else if (num > 8888 || num < 1) {
+                    error.innerText = "invalid range";
+                    return;
                 }
 
                 let resp = instance.getInfo(num);
 
                 resp.then((data) => {
                     console.log(data);
-                    if (resp.error) {
+                    if (resp.error !== undefined) {
                         error.textContent = resp.error;
                     } else {
                         error.textContent = "";
@@ -86,6 +181,10 @@
                         probRank.innerText = data.probability.rarest;
                         probScore.innerText = data.probability.score;
                         numbers.innerText = data.numbers.join(' ');
+
+                        // data.numbers.map(v => v.map((s) => MORSE_TRANSLATIONS[ Number.parseInt(s) ] ).join()).join(' ');
+
+                        currentStr = data.numbers.map(v => v.split("").map(s => MORSE_TRANSLATIONS[Number.parseInt(s)]).join("")).join(' ');
 
                         img.src = data.image;
                         img.hidden = false;

@@ -51,14 +51,16 @@ async function App() {
                     let img = metadata.image;
                     let attr = metadata.attributes;
                     let numbers = [ attr[0].first,
-                                    attr[7].second,
-                                    attr[6].third,
-                                    attr[5].fourth,
+                                    attr[1].second,
+                                    attr[2].third,
+                                    attr[3].fourth,
                                     attr[4].fifth,
-                                    attr[3].sixth,
-                                    attr[2].seventh,
-                                    attr[1].eight
+                                    attr[5].sixth,
+                                    attr[6].seventh,
+                                    attr[7].eight
                     ];
+                    let sum = attr[13];
+                    
 
                     resolve({
                             "rarity": this.rarity.find((e) => e.id == id),
